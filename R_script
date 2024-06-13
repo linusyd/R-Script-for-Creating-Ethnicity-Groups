@@ -136,6 +136,10 @@ define_ethnicity <- function(ancestry1, ancestry2, INGP) {
   if (eth == 'Fijian - Indian') return('Fijian Indian')
   # Individuals reporting the two ancestries 'Punjabi' and 'Sikh' are categorized as 'Punjabi' rather than multiethnic Asian – Punjabi selected as this is the more commonly reported ancestry of the two
   if (eth == 'Punjabi - Sikh') return('Punjabi')
+  # Individuals reporting the two ancestries 'Sri Lankan' and 'Tamil, nfd' are categorized as 'Sri Lankan Tamil'
+  if (eth == 'Sri Lankan - Tamil, nfd') return('Sri Lankan Tamil')
+  # Individuals reporting the two ancestries 'Indian' and 'Tamil, nfd' are categorized as 'Indian Tamil' 
+  if (eth == 'Indian - Tamil, nfd') return('Indian Tamil')
   # Individuals reporting the two ancestries 'Cook Islander' and 'Māori' are categorized as 'Cook Islander' – this is based on that assumption that these individuals likely identify as ‘Cook Island Māori’ but that this ethnicity category does not exist in the ABS classification system. Without this exception they would be grouped as multiethnic Māori-Pasifika
   if (eth == 'Cook Islander - Māori') return('Cook Islander')
   
