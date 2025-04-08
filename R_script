@@ -86,7 +86,7 @@ define_ethnicity <- function(ancestry1, ancestry2, INGP) {
     return(ancestry2)
   } else if (category == '2 Responses' & ancestry2 %in% c('Australian', 'New Zealander')&!(ancestry1 %in% c('Australian', 'New Zealander'))) {
     return(ancestry1)
-  } else if (category == '2 Responses' & ancestry1 %in% c('Australian', 'New Zealander')& ancestry1 %in% c('Australian', 'New Zealander')) {
+  } else if (category == '2 Responses' & ancestry1 %in% c('Australian', 'New Zealander')& ancestry2 %in% c('Australian', 'New Zealander')) {
     return("Anglo-Celtic")
   }
   ###################################################################################
@@ -329,7 +329,7 @@ define_ethnicity1 <- function(ancestry1, ancestry2, INGP) {
     return(ancestry2)
   } else if (category == '2 Responses' & ancestry2 %in% c('Australian', 'New Zealander')&!(ancestry1 %in% c('Australian', 'New Zealander'))) {
     return(ancestry1)
-  } else if (category == '2 Responses' & ancestry1 %in% c('Australian', 'New Zealander')& ancestry1 %in% c('Australian', 'New Zealander')) {
+  } else if (category == '2 Responses' & ancestry1 %in% c('Australian', 'New Zealander')& ancestry2 %in% c('Australian', 'New Zealander')) {
     return("Anglo-Celtic")
   }
   ###################################################################################
