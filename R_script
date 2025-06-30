@@ -1,6 +1,6 @@
 #########################################################################################################################
 ### Title: R Script for Creating Ethnicity Groups Based on Ancestry Data                                              ### 
-### Author: Lin Zhu                                                                                                   ### 
+### Author: Lin Zhu; Peiyao Xu                                                                                        ### 
 ### Date: 28-05-2024                                                                                                  ### 
 ### Description: This R script is a supplementary document for the paper "Using linked Census data to enhance         ###
 ### understanding of ethnic inequalities in health in Australia: the example  of all-cause mortality". It defines a   ### 
@@ -10,7 +10,7 @@
 ### Citation: To cite this function, please use:                                                                      ###
 ### Stanaway, F.et al (2024). Using linked Census data to enhance understanding of ethnic inequalities in health in   ###
 ### Australia, doi:xxxxx/xxxx.                                                                                        ###                            
-### Contact: For suggestions or queries, please email lin.zhu1@sydney.edu.au                                          ###  
+### Contact: For suggestions or queries, please email lin.zhu1@sydney.edu.au; peiyao.xu@sydney.edu.au                 ###  
 ### We particularly welcome suggestions and modifications based on engagement with relevant communities and/or data   ###
 ### analyses demonstrating differences in inequalities when adjusting categorization rules.                           ###                       
 #########################################################################################################################
@@ -29,6 +29,8 @@
 #########################################################################################################################
 ### I. The core function to determine ethnicity based on ancestry and Indigenous status as used in the study          ###
 #########################################################################################################################
+# Define Anglo-Celtic group
+ac_country<-c('English','Australian','Scottish','Irish','Welsh','New Zealander','Manx','Channel Islander','British, nec','British, nfd','Australian Peoples, nfd','New Zealand Peoples, nfd')
 
 define_ethnicity <- function(ancestry1, ancestry2, INGP) {
   # Determine the number of responses: 'Only 1 Response' or '2 Responses'
@@ -61,14 +63,14 @@ define_ethnicity <- function(ancestry1, ancestry2, INGP) {
   ################################################################################
   ## 2. For the non-Indigenous population who only report one ancestry response ##
   ################################################################################
+  #### Categorize 'Eurasian, so described' as 'Multiethnic Asian-European' ####
+  if (ancestry1 == 'Eurasian, so described' | ancestry2 == 'Eurasian, so described') return('Multiethnic Asian-European')
+
+  #### For the non-Indigenous population who only report one ancestry response ####
   if (category == 'Only 1 Response') {
     # Categorize Anglo-Celtic ethnic groups as 'Anglo-Celtic'
-    if (ancestry1 %in% c('English', 'Australian', 'Scottish', 'Irish', 'Welsh', 'New Zealander', 'Manx', 'Channel Islander', 'British, nec', 'British, nfd', 'Australian Peoples, nfd', 'New Zealand Peoples, nfd')) {
+    if (ancestry1 %in% ac_country) {
       return('Anglo-Celtic')
-    }
-    # Categorize 'Eurasian, so described' as 'Multiethnic Asian-European'
-    if (ancestry1 == 'Eurasian, so described') {
-      return('Multiethnic Asian-European')
     }
     # Otherwise, return the reported ancestry
     return(ancestry1)
@@ -81,26 +83,39 @@ define_ethnicity <- function(ancestry1, ancestry2, INGP) {
   #######################################################################
   # 3.1 Combination of 'Australian'/'New Zealander' plus other ancestry #
   #######################################################################
+  # For the combination of two Anglo-Celtic group, output Anglo-Celtic group
+  if (category == '2 Responses' & ancestry1 %in% ac_country & ancestry2 %in% ac_country) {return("Anglo-Celtic")}
+
+  # For the combination of 'Inadequately described' plus other ancestry, we prioritize the other ancestry
+  if (category == '2 Responses' & ancestry1 %in% ac_country & ancestry2 == 'Inadequately described') {return("Anglo-Celtic")}
+  if (category == '2 Responses' & ancestry2 %in% ac_country & ancestry1 == 'Inadequately described') {return("Anglo-Celtic")}
+  if (ancestry1 == 'Inadequately described') {return(ancestry2)} else if (ancestry2 == 'Inadequately described') {return(ancestry1)}
+  
   # For the combination of 'Australian'/'New Zealander' plus other ancestry, we prioritize the other ancestry
-  if (category == '2 Responses' & ancestry1 %in% c('Australian', 'New Zealander') &!(ancestry2 %in% c('Australian', 'New Zealander'))) {
+  if (category == '2 Responses' & ancestry1 %in% c('Australian', 'New Zealander','Australian Peoples, nfd', 'New Zealand Peoples, nfd') &!(ancestry2 %in% c('Australian', 'New Zealander','Australian Peoples, nfd', 'New Zealand Peoples, nfd'))) {
     return(ancestry2)
-  } else if (category == '2 Responses' & ancestry2 %in% c('Australian', 'New Zealander')&!(ancestry1 %in% c('Australian', 'New Zealander'))) {
+  } else if (category == '2 Responses' & ancestry2 %in% c('Australian', 'New Zealander','Australian Peoples, nfd', 'New Zealand Peoples, nfd')&!(ancestry1 %in% c('Australian', 'New Zealander','Australian Peoples, nfd', 'New Zealand Peoples, nfd'))) {
     return(ancestry1)
-  } else if (category == '2 Responses' & ancestry1 %in% c('Australian', 'New Zealander')& ancestry2 %in% c('Australian', 'New Zealander')) {
-    return("Anglo-Celtic")
-  }
+  } 
+
   ###################################################################################
   # 3.2 Combination of "American", "Canadian", "South African" plus other ancestry  #
   ###################################################################################  
+  # For the combination of "American", "Canadian", "South African" plus Anglo-Celtic group, output "Anglo-Celtic"
+  if (category == '2 Responses' & ancestry1 %in% ac_country & ancestry2 %in% c("American", "Canadian", "South African")) {
+    return("Anglo-Celtic")}
+  if (category == '2 Responses' & ancestry2 %in% ac_country & ancestry1 %in% c("American", "Canadian", "South African")) {
+    return("Anglo-Celtic")}
+
   # For the combination of "American", "Canadian", "South African" plus other ancestry, we prioritize the other ancestry   
   if (category == '2 Responses' & ancestry1 %in% c("American", "Canadian", "South African") & !(ancestry2 %in% c("American", "Canadian", "South African"))) {
     return(ancestry2)
   } else if (category == '2 Responses' & ancestry2 %in% c("American", "Canadian", "South African") & !(ancestry1 %in% c("American", "Canadian", "South African"))) {
     return(ancestry1)
   }
-  ###################################################################
+  ##########################################################################
   # 3.3 Other combinations of national identities and ethnic identities    #
-  ###################################################################
+  ##########################################################################
   # In addition to the specific examples above, when individuals report both an ethnic group and a national identity, we prioritize identifying with a particular ethnic group within a country or small region over reporting a national identity  
   # All these specific combinations are listed as below:  
   # Sudan
@@ -116,8 +131,8 @@ define_ethnicity <- function(ancestry1, ancestry2, INGP) {
   if (ancestry1 %in% c("Javanese", "Madurese", "Sundanese", "Acehnese", "Kadazan", "Temoq", "Balinese") & ancestry2 %in% c("Timorese", "Maritime South-East Asian, nfd", "Filipino", "Indonesian", "Malay")) return(ancestry1)
   if (ancestry2 %in% c("Javanese", "Madurese", "Sundanese", "Acehnese", "Kadazan", "Temoq", "Balinese") & ancestry1 %in% c("Timorese", "Maritime South-East Asian, nfd", "Filipino", "Indonesian", "Malay")) return(ancestry2)
   # South Asian
-  if (ancestry1 %in% c("Bengali", "Burgher", "Gujarati", "Malayali", "Punjabi", "Sikh", "Sinhala", "Maldive", "Kashmiri", "Parsi", "Sindhi", "Telugu", "Tamil", "South Asian, nec", "Indian Tamil", "Southern Asian, nfd") & ancestry2 %in% c("Sri Lankan", "Sri Lankan Tamil", "Southern Asian, nfd", "Indian Tamil")) return(ancestry1)
-  if (ancestry2 %in% c("Bengali", "Burgher", "Gujarati", "Malayali", "Punjabi", "Sikh", "Sinhala", "Maldive", "Kashmiri", "Parsi", "Sindhi", "Telugu", "Tamil", "South Asian, nec", "Indian Tamil", "Southern Asian, nfd") & ancestry1 %in% c("Sri Lankan", "Sri Lankan Tamil", "Southern Asian, nfd", "Indian Tamil")) return(ancestry2)
+  if (ancestry1 %in% c("Bengali", "Burgher", "Gujarati", "Malayali", "Punjabi", "Sikh", "Sinhala", "Maldive", "Kashmiri", "Parsi", "Sindhi", "Telugu", "Tamil, nfd", "Sri Lankan Tamil", "Indian Tamil") & ancestry2 %in% c("Sri Lankan", "Southern Asian, nfd", "Indian", "Nepalese", "Pakistani", "Bangladeshi", "Bhutanese","Southern Asian, nec")) return(ancestry1)
+  if (ancestry2 %in% c("Bengali", "Burgher", "Gujarati", "Malayali", "Punjabi", "Sikh", "Sinhala", "Maldive", "Kashmiri", "Parsi", "Sindhi", "Telugu", "Tamil, nfd", "Sri Lankan Tamil", "Indian Tamil") & ancestry1 %in% c("Sri Lankan", "Southern Asian, nfd", "Indian", "Nepalese", "Pakistani", "Bangladeshi", "Bhutanese","Southern Asian, nec")) return(ancestry2)
   # Central Asian
   if (ancestry1 %in% c("Azeri", "Hazara", "Kazakh", "Pathan", "Uzbek", "Turkmen", "Uighur", "Tajik", "Tatar", "Kyrgyz") & ancestry2 %in% c("Afghan", "Armenian", "Georgian", "Central Asian, nfd", "Central Asian, nec")) return(ancestry1)
   if (ancestry2 %in% c("Azeri", "Hazara", "Kazakh", "Pathan", "Uzbek", "Turkmen", "Uighur", "Tajik", "Tatar", "Kyrgyz") & ancestry1 %in% c("Afghan", "Armenian", "Georgian", "Central Asian, nfd", "Central Asian, nec")) return(ancestry2)
@@ -157,10 +172,10 @@ define_ethnicity <- function(ancestry1, ancestry2, INGP) {
     if (ancestry %in% c('Maori')) {
       return('Maori')
     }
-    if (ancestry %in% c('North-West European, nfd', 'British, nfd', 'English', 'Scottish', 'Welsh', 'Channel Islander', 'Manx', 'British, nec', 'Irish', 'Western European, nfd', 'Austrian', 'Dutch', 'Flemish', 'French', 'German', 'Swiss', 'Belgian', 'Frisian', 'Luxembourg', 'Western European, nec', 'Northern European, nfd', 'Danish', 'Finnish', 'Icelandic', 'Norwegian', 'Swedish', 'Northern European, nec', 'Southern and Eastern European, nfd', 'Southern European, nfd', 'Basque', 'Catalan', 'Italian', 'Maltese', 'Portuguese', 'Spanish', 'Gibraltarian', 'Southern European, nec', 'South Eastern European, nfd', 'Albanian', 'Bosnian', 'Bulgarian', 'Croatian', 'Greek', 'Macedonian', 'Moldovan', 'Montenegrin', 'Romanian', 'Roma Gypsy', 'Serbian', 'Slovene', 'Cypriot', 'Vlach', 'South Eastern European, nec', 'Eastern European, nfd', 'Belarusan', 'Czech', 'Estonian', 'Hungarian', 'Latvian', 'Lithuanian', 'Polish', 'Russian', 'Slovak', 'Ukrainian', 'Sorb/Wend', 'Eastern European, nec', 'European, so described', 'Caucasian, so described', 'Afrikaner')) {
+    if (ancestry %in% c('New Zealander','New Zealand Peoples, nfd','North-West European, nfd', 'British, nfd', 'English', 'Scottish', 'Welsh', 'Channel Islander', 'Manx', 'British, nec', 'Irish', 'Western European, nfd', 'Austrian', 'Dutch', 'Flemish', 'French', 'German', 'Swiss', 'Belgian', 'Frisian', 'Luxembourg', 'Western European, nec', 'Northern European, nfd', 'Danish', 'Finnish', 'Icelandic', 'Norwegian', 'Swedish', 'Northern European, nec', 'Southern and Eastern European, nfd', 'Southern European, nfd', 'Basque', 'Catalan', 'Italian', 'Maltese', 'Portuguese', 'Spanish', 'Gibraltarian', 'Southern European, nec', 'South Eastern European, nfd', 'Albanian', 'Bosnian', 'Bulgarian', 'Croatian', 'Greek', 'Macedonian', 'Moldovan', 'Montenegrin', 'Romanian', 'Roma Gypsy', 'Serbian', 'Slovene', 'Cypriot', 'Vlach', 'South Eastern European, nec', 'Eastern European, nfd', 'Belarusan', 'Czech', 'Estonian', 'Hungarian', 'Latvian', 'Lithuanian', 'Polish', 'Russian', 'Slovak', 'Ukrainian', 'Sorb/Wend', 'Eastern European, nec', 'European, so described', 'Caucasian, so described', 'Afrikaner')) {
       return('European')
     }
-    if (ancestry %in% c('North African and Middle Eastern, nfd', 'Arab, nfd', 'Algerian', 'Egyptian', 'Iraqi', 'Jordanian', 'Kuwaiti', 'Lebanese', 'Libyan', 'Moroccan', 'Palestinian', 'Saudi Arabian', 'Syrian', 'Tunisian', 'Yemeni', 'Bahraini', 'Emirati', 'Omani', 'Qatari', 'Arab, nec', 'Jewish', 'Other North African and Middle Eastern, nfd', 'Iranian', 'Kurdish', 'Turkish', 'Assyrian', 'Chaldean', 'Mandaean', 'Nubian', 'Yezidi', 'Other North African and Middle Eastern, nec')) {
+    if (ancestry %in% c('North African and Middle Eastern, nfd', 'Arab, nfd', 'Algerian', 'Egyptian', 'Iraqi', 'Jordanian', 'Kuwaiti', 'Lebanese', 'Libyan', 'Moroccan', 'Palestinian', 'Saudi Arabian', 'Syrian', 'Tunisian', 'Yemeni', 'Bahraini', 'Bari', 'Peoples of the Sudan, nfd', 'Nuer', 'South Sudanese', 'Darfur', 'Dinka', 'Sudanese', 'Peoples of the Sudan, nfd', 'Berber', 'Coptic', 'Emirati', 'Omani', 'Qatari', 'Arab, nec', 'Jewish', 'Other North African and Middle Eastern, nfd', 'Iranian', 'Kurdish', 'Turkish', 'Assyrian', 'Chaldean', 'Mandaean', 'Nubian', 'Yezidi', 'Other North African and Middle Eastern, nec')) {
       return('Middle Eastern')
     }
     if (ancestry %in% c('Peoples of the Sudan, nfd', 'Bari', 'Darfur', 'Dinka', 'Nuer', 'South Sudanese', 'Sudanese', 'Peoples of the Sudan, nec', 'Berber', 'Coptic')) {
@@ -184,7 +199,7 @@ define_ethnicity <- function(ancestry1, ancestry2, INGP) {
   continent1 <- get_continent(ancestry1)
   continent2 <- get_continent(ancestry2)
   # If the two ancestries belong to the same continent or aggregate group, they are categorized as a multiethnic group of that continental region, such as 'Multiethnic Asian' or     # 'Multiethnic Pasifika'.
-  if (continent1 == continent2) {
+  if (identical(continent1, continent2)) {
     return(paste0("Multiethnic ", continent1))
   } else {
     # Otherwise, they are categorized as a multiethnic group of the two continents/aggregate groups, such as 'Multiethnic Asian-European'
