@@ -3,9 +3,9 @@
 ### Author: Lin Zhu; Peiyao Xu                                                                                        ### 
 ### Date: 28-05-2024                                                                                                  ### 
 ### Description: This R script is a supplementary document for the paper "Using linked Census data to enhance         ###
-### understanding of ethnic inequalities in health in Australia: the example  of all-cause mortality". It defines a   ### 
+### understanding of ethnic inequalities in health in Australia: the example of all-cause mortality". It defines a    ### 
 ### function to determine ethnic group based on responses to the Census Ancestry and Indigenous status questions.     ###
-### The function, primarily based on the 2016 census data, can be adapted where similar data is available. This       ###
+### The function, primarily based on the 2016 Census data, can be adapted where similar data is available. This       ###
 ### script includes the core function used in our study along with modifications for specific purposes.               ###                          
 ### Citation: To cite this function, please use:                                                                      ###
 ### Stanaway, F.et al (2024). Using linked Census data to enhance understanding of ethnic inequalities in health in   ###
@@ -161,8 +161,8 @@ define_ethnicity <- function(ancestry1, ancestry2, INGP) {
   if (eth == 'Sri Lankan - Tamil, nfd') return('Sri Lankan Tamil')
   # Individuals reporting the two ancestries 'Indian' and 'Tamil, nfd' are categorized as 'Indian Tamil' 
   if (eth == 'Indian - Tamil, nfd') return('Indian Tamil')
-  # Individuals reporting the two ancestries 'Cook Islander' and 'Māori' are categorized as 'Cook Islander' – this is based on that assumption that these individuals likely identify as ‘Cook Island Māori’ but that this ethnicity category does not exist in the ABS classification system. Without this exception they would be grouped as multiethnic Māori-Pasifika
-  if (eth == 'Cook Islander - Māori') return('Cook Islander')
+  # Individuals reporting the two ancestries 'Cook Islander' and 'Maori' are categorized as 'Cook Islander' – this is based on that assumption that these individuals likely identify as ‘Cook Island Maori’ but that this ethnicity category does not exist in the ABS classification system. Without this exception they would be grouped as multiethnic Maori-Pasifika
+  if (eth == 'Cook Islander - Maori') return('Cook Islander')
   
   ###############################################
   # 3.5 Multiethnic category                    #       
@@ -427,8 +427,8 @@ define_ethnicity1 <- function(ancestry1, ancestry2, INGP) {
   if (eth == 'Sri Lankan - Tamil, nfd') return('Sri Lankan Tamil')
   # Individuals reporting the two ancestries 'Indian' and 'Tamil, nfd' are categorized as 'Indian Tamil' 
   if (eth == 'Indian - Tamil, nfd') return('Indian Tamil')
-  # Individuals reporting the two ancestries 'Cook Islander' and 'Māori' are categorized as 'Cook Islander' – this is based on that assumption that these individuals likely identify as ‘Cook Island Māori’ but that this ethnicity category does not exist in the ABS classification system. Without this exception they would be grouped as multiethnic Māori-Pasifika
-  if (eth == 'Cook Islander - Māori') return('Cook Islander')
+  # Individuals reporting the two ancestries 'Cook Islander' and 'Maori' are categorized as 'Cook Islander' – this is based on that assumption that these individuals likely identify as ‘Cook Island Maori’ but that this ethnicity category does not exist in the ABS classification system. Without this exception they would be grouped as multiethnic Maori-Pasifika
+  if (eth == 'Cook Islander - Maori') return('Cook Islander')
   
   ###############################################
   # 3.5 Multiethnic category                    #       
