@@ -25,6 +25,13 @@
 #        2: Aboriginal
 #        3: Torres Strait Islander
 #        4: Both Aboriginal and Torres Strait Islander  
+# Note:
+# 1) This is a scalar function (it processes one observation at a time).
+#    When applying it to a dataset, use for example:
+#    df$ethnicity <- mapply(define_ethnicity, df$ancestry1, df$ancestry2, df$INGP)
+# 2) If using Census data, the 4-digit ancestry codes need to be matched to the
+#    corresponding Cultural and Ethnic Group names from the Australian Standard
+#    Classification of Cultural and Ethnic Groups (ASCCEG) before applying this function.
 
 #########################################################################################################################
 ### I. The core function to determine ethnicity based on ancestry and Indigenous status as used in the study          ###
@@ -199,6 +206,10 @@ define_ethnicity <- function(ancestry1, ancestry2, INGP) {
     return(paste0("Multiethnic ", pmin(continent1, continent2), "-", pmax(continent1, continent2)))
   }  
 }
+
+
+
+
 
 
 #### Management of granularity ####
