@@ -9,7 +9,7 @@
 ### script includes the core function used in our study along with modifications for specific purposes.               ###                          
 ### Citation: To cite this function, please use:                                                                      ###
 ### Stanaway, F.et al (2024). Using linked Census data to enhance understanding of ethnic inequalities in health in   ###
-### Australia, doi:10.23889/ijpds.v6i1.2973                                                                           ###           ###                            
+### Australia, doi:10.23889/ijpds.v6i1.2973                                                                           ###                                       
 ### Contact: For suggestions or queries, please email lin.zhu1@sydney.edu.au; peiyao.xu@sydney.edu.au                 ###  
 ### We particularly welcome suggestions and modifications based on engagement with relevant communities and/or data   ###
 ### analyses demonstrating differences in inequalities when adjusting categorization rules.                           ###                       
@@ -29,8 +29,6 @@
 #########################################################################################################################
 ### I. The core function to determine ethnicity based on ancestry and Indigenous status as used in the study          ###
 #########################################################################################################################
-# Define Anglo-Celtic group
-ac_country<-c('English','Australian','Scottish','Irish','Welsh','New Zealander','Manx','Channel Islander','British, nec','British, nfd','Australian Peoples, nfd','New Zealand Peoples, nfd')
 
 define_ethnicity <- function(ancestry1, ancestry2, INGP) {
   # Determine the number of responses: 'Only 1 Response' or '2 Responses'
@@ -65,7 +63,8 @@ define_ethnicity <- function(ancestry1, ancestry2, INGP) {
   ################################################################################
   #### Categorize 'Eurasian, so described' as 'Multiethnic Asian-European' ####
   if (ancestry1 == 'Eurasian, so described' | ancestry2 == 'Eurasian, so described') return('Multiethnic Asian-European')
-
+  # Define Anglo-Celtic group
+  ac_country<-c('English','Australian','Scottish','Irish','Welsh','New Zealander','Manx','Channel Islander','British, nec','British, nfd','Australian Peoples, nfd','New Zealand Peoples, nfd')
   #### For the non-Indigenous population who only report one ancestry response ####
   if (category == 'Only 1 Response') {
     # Categorize Anglo-Celtic ethnic groups as 'Anglo-Celtic'
@@ -165,7 +164,7 @@ define_ethnicity <- function(ancestry1, ancestry2, INGP) {
   ####A function to Match the ancestry response to the corresponding continent/aggregate group 
   # Note: Some modifications have been made for groups with insufficient information. For example, ‘Oceanian, nfd’ is categorized as ‘Pasifika’, and ‘North
   # African and Middle Eastern, nfd’ is classified as ‘Middle Eastern’, assuming that most of the ‘nfd’ groups belong to these categories.
-  get_contient<-function(ancestry){
+  get_continent<-function(ancestry){
     if(ancestry %in% c("Oceanian, nfd","Ni-Vanuatu","Papua New Guinean" ,"Melanesian and Papuan, nfd", "New Caledonian","Solomon Islander","Melanesian and Papuan, nec","Micronesian, nfd","I-Kiribati","Nauruan", "Micronesian, nec" , "Tongan", "Hawaiian" ,"Polynesian, nfd" ,"Cook Islander", "Fijian" ,"Niuean","Samoan" ,"Tuvaluan", "Pitcairn", "Tahitian" ,"Tokelauan","Polynesian, nec")){
       return('Pasifika')
     }
