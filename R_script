@@ -39,7 +39,7 @@
 
 define_ethnicity <- function(ancestry1, ancestry2, INGP) {
   # Determine the number of responses: 'Only 1 Response' or '2 Responses'
-  category <- ifelse(ancestry2 == 'Not applicable', 'Only 1 Response', '2 Responses')
+  category <- if (ancestry2 == "Not applicable") "Only 1 Response" else "2 Responses"
   
   # Combine the ancestry responses if there are two
   eth <- if (category == '2 Responses') paste0(pmin(ancestry1, ancestry2), " - ", pmax(ancestry1, ancestry2)) else ancestry1
